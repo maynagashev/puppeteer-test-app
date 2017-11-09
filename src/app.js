@@ -1,6 +1,12 @@
 const puppeteer = require('puppeteer');
 const config = require('./config');
+const path = require('path');
 //console.log(config);
+
+console.log('Pwd:', path.resolve());
+console.log('Date:', (new Date()).toString());
+
+//process.exit();
 
 (async () => {
     const browser = await initBrowser();
@@ -28,7 +34,7 @@ const config = require('./config');
 
 async function initBrowser() {
     let browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         args: ["--window-size=1920,1080"],
         //slowMo: 250node,
     });
@@ -43,8 +49,16 @@ async function openProfilePage(browser) {
     return page;
 }
 
-async function takeScreenshot(page, browser) {
+async function takeScreenshot(page, browser) {    
+    return await page.screenshot({ path: buildScreenPath() });
+}
+
+function buildScreenPath() {
     let date = (new Date()).toISOString().replace(/\:/g, '-');
-    let path = config.screenPath.replace(/\.png/, '-' + date + '.png');
-    return await page.screenshot({ path: path });
+    
+    let screenPath = path.resolve(__dirname + '/..')
+        + '/' 
+        + config.screenPath.replace(/\.png$/, '-' + date + '.png');
+
+    return screenPath;
 }
