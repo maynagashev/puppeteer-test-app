@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const config = require('./config');
 const path = require('path');
+const moment = require('moment');
 //console.log(config);
 
 console.log('Pwd:', path.resolve());
@@ -23,11 +24,11 @@ console.log('Date:', (new Date()).toString());
     await page.keyboard.type(config.userPassword);
     await page.click('#submit-button');
     await page.waitForNavigation();
-    await takeScreenshot(page, browser);
+    await takeScreenshot(page, browser, 'profile');
 
     // goto main page
     await page.goto("https://stackoverflow.com/");
-    await takeScreenshot(page, browser);    
+    await takeScreenshot(page, browser, 'homepage');    
     
     return await browser.close();
 })();
@@ -49,16 +50,21 @@ async function openProfilePage(browser) {
     return page;
 }
 
-async function takeScreenshot(page, browser) {    
-    return await page.screenshot({ path: buildScreenPath() });
+async function takeScreenshot(page, browser, n) {    
+    let screenPath = buildScreenPath(n);
+    return await page.screenshot({ path: screenPath });
 }
 
-function buildScreenPath() {
-    let date = (new Date()).toISOString().replace(/\:/g, '-');
+function buildScreenPath(n) {
+    let dateOnly = moment().utc().format('YYYY-MM-DD');
+    // let date = (new Date()).toISOString().replace(/\:/g, '-');
     
     let screenPath = path.resolve(__dirname + '/..')
         + '/' 
-        + config.screenPath.replace(/\.png$/, '-' + date + '.png');
+        + config.screenPath
+        + dateOnly
+        + ((n) ? '-' + n : '')
+        + '.png';
 
     return screenPath;
 }
