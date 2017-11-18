@@ -2,12 +2,17 @@ const puppeteer = require('puppeteer');
 const config = require('./config');
 const path = require('path');
 const moment = require('moment');
+const fs = require('fs');
 //console.log(config);
 
 console.log('Pwd:', path.resolve());
 console.log('Date:', (new Date()).toString());
 
-//process.exit();
+if (isTodayScreenExists('profile')) {
+    console.log('Screenshot already has been taken today. Exit.');
+    process.exit();
+}
+
 
 (async () => {
     const browser = await initBrowser();
@@ -51,7 +56,7 @@ async function openProfilePage(browser) {
 }
 
 async function takeScreenshot(page, browser, n) {    
-    let screenPath = buildScreenPath(n);
+    let screenPath = buildScreenPath(n);  
     return await page.screenshot({ path: screenPath });
 }
 
@@ -67,4 +72,9 @@ function buildScreenPath(n) {
         + '.png';
 
     return screenPath;
+}
+
+function isTodayScreenExists(name) {
+    let screenPath = buildScreenPath(name);
+    return (fs.existsSync(screenPath));
 }
